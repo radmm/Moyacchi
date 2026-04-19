@@ -1,17 +1,18 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Layers, Trash2, Footprints, Utensils, Zap, Plus, Sparkles } from 'lucide-react';
+import { Layers, Trash2, Footprints, Utensils, Zap, Plus, Sparkles, Edit2 } from 'lucide-react';
 import { DailyLog } from '../types';
 
 interface DailyStackViewProps {
   logs: DailyLog[];
   onRemove: (index: number) => void;
+  onEdit: (index: number) => void;
   onClearAll: () => void;
   onAnalyse: () => void;
   isAnalysing: boolean;
 }
 
-export default function DailyStackView({ logs, onRemove, onClearAll, onAnalyse, isAnalysing }: DailyStackViewProps) {
+export default function DailyStackView({ logs, onRemove, onEdit, onClearAll, onAnalyse, isAnalysing }: DailyStackViewProps) {
   if (logs.length === 0) return null;
 
   return (
@@ -67,12 +68,22 @@ export default function DailyStackView({ logs, onRemove, onClearAll, onAnalyse, 
                 </div>
               </div>
               
-              <button 
-                onClick={() => onRemove(idx)}
-                className="p-2 opacity-0 group-hover:opacity-100 hover:bg-red-500/20 rounded-lg text-text-dim hover:text-red-400 transition-all"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
+              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                <button 
+                  onClick={() => onEdit(idx)}
+                  className="p-2 hover:bg-white/10 rounded-lg text-text-dim hover:text-primary transition-all"
+                  title="Edit Entry"
+                >
+                  <Edit2 className="w-4 h-4" />
+                </button>
+                <button 
+                  onClick={() => onRemove(idx)}
+                  className="p-2 hover:bg-red-500/20 rounded-lg text-text-dim hover:text-red-400 transition-all"
+                  title="Delete Entry"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
             </motion.div>
           ))}
         </AnimatePresence>

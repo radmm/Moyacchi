@@ -26,6 +26,7 @@ export default function App() {
   const [currentStack, setCurrentStack] = useState<DailyLog[]>([]);
   const [currentResult, setCurrentResult] = useState<AnalysisResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [showShare, setShowShare] = useState(false);
   const [showBloom, setShowBloom] = useState(false);
   const [mascotMood, setMascotMood] = useState<'happy' | 'thinking' | 'cheering' | 'sad'>('happy');
@@ -108,7 +109,12 @@ export default function App() {
   };
 
   const handleAddToStack = (log: DailyLog) => {
-    setCurrentStack(prev => [...prev, log]);
+    if (editingIndex !== null) {
+      setCurrentStack(prev => prev.map((item, idx) => idx === editingIndex ? log : item));
+      setEditingIndex(null);
+    } else {
+      setCurrentStack(prev => [...prev, log]);
+    }
     setMascotMood('happy');
   };
 
@@ -265,12 +271,24 @@ export default function App() {
           <AnimatePresence mode="wait">
             {!currentResult ? (
               <div key="form" className="flex flex-col gap-12 h-full">
-                <HabitForm onSubmit={handleAddToStack} isLoading={isLoading} />
+                <HabitForm 
+                  onSubmit={handleAddToStack} 
+                  isLoading={isLoading} 
+                  initialValues={editingIndex !== null ? currentStack[editingIndex] : null}
+                  isEditing={editingIndex !== null}
+                />
                 <DailyStackView 
                   logs={currentStack} 
-                  onRemove={(idx) => setCurrentStack(prev => prev.filter((_, i) => i !== idx))}
+                  onRemove={(idx) => {
+                    setCurrentStack(prev => prev.filter((_, i) => i !== idx));
+                    if (editingIndex === idx) setEditingIndex(null);
+                  }}
+                  onEdit={(idx) => setEditingIndex(idx)}
                   onClearAll={() => {
-                    if (confirm("Clear your current stack? 🌿")) setCurrentStack([]);
+                    if (confirm("Clear your current stack? 🌿")) {
+                      setCurrentStack([]);
+                      setEditingIndex(null);
+                    }
                   }}
                   onAnalyse={handleAnalyseStack}
                   isAnalysing={isLoading}
@@ -280,6 +298,15 @@ export default function App() {
                   <Journal 
                     history={history} 
                     onDelete={handleDeleteHistory}
+                    onEdit={(item) => {
+                      if (currentStack.length > 0) {
+                        if (!confirm("Your current unsaved stack will be overwritten. Continue? 🌿")) return;
+                      }
+                      setCurrentStack(item.logs || []);
+                      setCurrentResult(null);
+                      setEditingIndex(null);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
                     onShare={(item) => {
                       setCurrentResult(item.analysis);
                       setShowShare(true);

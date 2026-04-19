@@ -8,9 +8,10 @@ interface HabitFormProps {
   onSubmit: (log: DailyLog) => void;
   isLoading: boolean;
   initialValues?: DailyLog | null;
+  isEditing?: boolean;
 }
 
-export default function HabitForm({ onSubmit, isLoading, initialValues }: HabitFormProps) {
+export default function HabitForm({ onSubmit, isLoading, initialValues, isEditing }: HabitFormProps) {
   const [log, setLog] = useState<DailyLog>(initialValues || {
     transport: '',
     food: '',
@@ -159,7 +160,7 @@ export default function HabitForm({ onSubmit, isLoading, initialValues }: HabitF
           className="btn-primary w-full md:w-auto md:min-w-[280px] py-5 flex items-center justify-center gap-3 text-sm"
         >
           <Send className="w-5 h-5" />
-          Add to Stack
+          {isEditing ? 'Update Stack Entry' : 'Add to Stack'}
         </button>
       </div>
     </motion.form>
