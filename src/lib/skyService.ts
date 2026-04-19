@@ -8,48 +8,48 @@ async function fetchWithTimeout(url: string, timeout = 10000) {
   return response;
 }
 
-export async function searchLocation(query: string): Promise<{ lat: number, lon: number, name: string } | null> {
+export async function searchLocation(query: string): Promise<{ lat: number, lon: number, name: string }[]> {
   try {
-    const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=1&language=en&format=json`;
+    const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=5&language=en&format=json`;
     const response = await fetchWithTimeout(url);
     const data = await response.json();
     
     if (data.results && data.results.length > 0) {
-      const result = data.results[0];
-      const parts = [result.name];
-      if (result.admin1) parts.push(result.admin1);
-      if (result.country) parts.push(result.country);
-      
-      return {
-        lat: result.latitude,
-        lon: result.longitude,
-        name: parts.join(", ")
-      };
+      return data.results.map((result: any) => {
+        const parts = [result.name];
+        if (result.admin1 && result.admin1 !== result.name) parts.push(result.admin1);
+        if (result.country) parts.push(result.country);
+        
+        return {
+          lat: result.latitude,
+          lon: result.longitude,
+          name: parts.join(", ")
+        };
+      });
     }
-    return null;
+    return [];
   } catch (error) {
     console.error("Geocoding Error:", error);
-    return null;
+    return [];
   }
 }
 
 export async function fetchSkyData(lat?: number, lon?: number, locationName?: string): Promise<SkyData> {
-  // Default to Singapore
-  const latitude = lat ?? 1.3521;
-  const longitude = lon ?? 103.8198;
+  // Default to a global coordinate if none provided
+  const latitude = lat ?? 0;
+  const longitude = lon ?? 0;
 
   try {
-    const aqiUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${latitude}&longitude=${longitude}&current=us_aqi,pm10,pm2_5`;
+    const aqiUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${latitude}&longitude=${longitude}&current=us_aqi,pm10,pm2_5,ozone`;
     const pollenUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${latitude}&longitude=${longitude}&hourly=alnus_pollen,betula_pollen,grass_pollen,mugwort_pollen,olive_pollen,ragweed_pollen`;
 
     const aqiResponse = await fetchWithTimeout(aqiUrl);
     if (!aqiResponse.ok) {
-      const errData = await aqiResponse.json().catch(() => ({}));
-      throw new Error(`AQI API failed: ${errData.reason || aqiResponse.statusText}`);
+      throw new Error(`AQI API failed: ${aqiResponse.status}`);
     }
     
     const aqiData = await aqiResponse.json();
-    const current = aqiData.current;
+    const current = aqiData.current || {};
 
     // Try to fetch pollen data (this is optional as many regions don't have it)
     let pollen = { grass: 0, tree: 0, weed: 0 };
@@ -59,18 +59,18 @@ export async function fetchSkyData(lat?: number, lon?: number, locationName?: st
         const pData = await pResponse.json();
         const hourIdx = new Date().getHours();
         pollen = {
-          grass: pData.hourly.grass_pollen?.[hourIdx] || 0,
-          tree: (pData.hourly.alnus_pollen?.[hourIdx] || 0) + (pData.hourly.betula_pollen?.[hourIdx] || 0),
-          weed: (pData.hourly.mugwort_pollen?.[hourIdx] || 0) + (pData.hourly.ragweed_pollen?.[hourIdx] || 0),
+          grass: pData.hourly?.grass_pollen?.[hourIdx] || 0,
+          tree: (pData.hourly?.alnus_pollen?.[hourIdx] || 0) + (pData.hourly?.betula_pollen?.[hourIdx] || 0),
+          weed: (pData.hourly?.mugwort_pollen?.[hourIdx] || 0) + (pData.hourly?.ragweed_pollen?.[hourIdx] || 0),
         };
       }
     } catch (e) {
-      console.warn("Pollen data unavailable for this region");
+      console.warn("Pollen data limited globally");
     }
 
     // US AQI mapping (0-500 scale)
+    const aqi = current.us_aqi ?? 0;
     let aqiLabel = "Good";
-    const aqi = current.us_aqi;
     if (aqi > 50) aqiLabel = "Moderate";
     if (aqi > 100) aqiLabel = "Unhealthy for Sensitive Groups";
     if (aqi > 150) aqiLabel = "Unhealthy";
@@ -81,12 +81,12 @@ export async function fetchSkyData(lat?: number, lon?: number, locationName?: st
       aqi,
       aqiLabel,
       pollutants: {
-        pm25: current.pm2_5,
-        pm10: current.pm10,
-        o3: 0,
+        pm25: current.pm2_5 ?? 0,
+        pm10: current.pm10 ?? 0,
+        o3: current.ozone ?? 0,
       },
       pollen,
-      location: locationName || (lat ? "Current Location" : "Singapore (Local)"),
+      location: locationName || "Global Atmosphere",
       timestamp: Date.now(),
     };
   } catch (error) {

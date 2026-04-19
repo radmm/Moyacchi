@@ -9,37 +9,7 @@ export default function SkyDashboard() {
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
-  const [permissionStatus, setPermissionStatus] = useState<'prompt' | 'loading' | 'granted' | 'denied'>('prompt');
-
-  const handleGetCurrentLocation = () => {
-    setPermissionStatus('loading');
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          setIsLoading(true);
-          try {
-            const skyData = await fetchSkyData(position.coords.latitude, position.coords.longitude);
-            setData(skyData);
-            setPermissionStatus('granted');
-          } catch (err) {
-            console.error("Fetch Data Error:", err);
-            setPermissionStatus('denied');
-          } finally {
-            setIsLoading(false);
-          }
-        },
-        (error) => {
-          console.error("Geolocation Error:", error);
-          setPermissionStatus('denied');
-          alert("Moyacchi can't find you! Please check if location access is blocked by your browser settings. 📍");
-        },
-        { timeout: 10000, enableHighAccuracy: true, maximumAge: 60000 }
-      );
-    } else {
-      setPermissionStatus('denied');
-      alert("Your browser doesn't support the Sky-Link. Use manual search below! 🌍");
-    }
-  };
+  const [searchResults, setSearchResults] = useState<{ lat: number, lon: number, name: string }[]>([]);
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
@@ -47,32 +17,46 @@ export default function SkyDashboard() {
       timeoutId = setTimeout(() => {
         setIsLoading(false);
         setIsSearching(false);
-        setPermissionStatus('denied');
       }, 15000); // 15 second safety cutoff
     }
     return () => clearTimeout(timeoutId);
   }, [isLoading]);
+
+  const handleSelectLocation = async (loc: { lat: number, lon: number, name: string }) => {
+    setIsLoading(true);
+    setSearchResults([]);
+    setSearchQuery('');
+    try {
+      const skyData = await fetchSkyData(loc.lat, loc.lon, loc.name);
+      setData(skyData);
+    } catch (err) {
+      console.error(err);
+      alert("Moyacchi is having trouble mapping that spot. Try again? ☁️");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
 
     setIsSearching(true);
+    setSearchResults([]);
     try {
-      const location = await searchLocation(searchQuery);
-      if (location) {
-        setIsLoading(true);
-        const skyData = await fetchSkyData(location.lat, location.lon, location.name);
-        setData(skyData);
-        setSearchQuery('');
+      const locations = await searchLocation(searchQuery);
+      if (locations.length === 1) {
+        handleSelectLocation(locations[0]);
+      } else if (locations.length > 1) {
+        setSearchResults(locations);
       } else {
         alert("Moyacchi couldn't find that place. Try another spelling? 🌍");
       }
     } catch (err) {
       console.error(err);
+      alert("Sky service is resting. Please try again in a moment! ☁️");
     } finally {
       setIsSearching(false);
-      setIsLoading(false);
     }
   };
 
@@ -113,57 +97,52 @@ export default function SkyDashboard() {
             className="glass-card p-12 text-center space-y-8 border-primary/20 bg-primary/2"
           >
             <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto border border-primary/20">
-              <Navigation className="w-8 h-8 text-primary" />
+              <Cloud className="w-8 h-8 text-primary" />
             </div>
             <div className="space-y-3">
               <h3 className="text-2xl font-bold text-white">Global Sky-Link</h3>
               <p className="text-sm text-text-dim max-w-xs mx-auto leading-relaxed">
-                Connect your real-time environment to receive personal health tips. Moyacchi tracks worldwide air quality using the global US-EPA standard.
+                Connect your real-time environment by searching for your city. Moyacchi tracks worldwide air quality using the global US-EPA standard.
               </p>
             </div>
             
-            <div className="flex flex-col gap-4 max-w-sm mx-auto">
-              <button 
-                onClick={handleGetCurrentLocation}
-                disabled={permissionStatus === 'loading'}
-                className={`btn-primary py-5 rounded-[24px] flex items-center justify-center gap-3 w-full transition-all ${permissionStatus === 'loading' ? 'opacity-70 scale-95' : 'hover:scale-[1.02]'}`}
-              >
-                {permissionStatus === 'loading' ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Locating...</span>
-                  </>
-                ) : (
-                  <>
-                    <Navigation className="w-5 h-5" />
-                    <span>Use Current Location</span>
-                  </>
-                )}
-              </button>
-              
-              <div className="relative flex items-center">
-                <div className="flex-1 h-[1px] bg-white/10" />
-                <span className="px-4 text-[10px] text-text-dim uppercase tracking-[0.3em] font-black">Or Browse</span>
-                <div className="flex-1 h-[1px] bg-white/10" />
-              </div>
-
+            <div className="flex flex-col gap-6 max-w-sm mx-auto">
               <form onSubmit={handleSearch} className="relative group">
                 <input 
                   type="text"
                   placeholder="Enter city or region"
-                  className="glass-input pr-12 text-center"
+                  className="glass-input pr-12 text-center h-16 text-lg"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   disabled={isSearching}
+                  autoFocus
                 />
                 <button 
                   type="submit"
                   disabled={isSearching}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-text-dim hover:text-white transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-primary hover:text-white transition-colors"
                 >
-                  {isSearching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+                  {isSearching ? <Loader2 className="w-6 h-6 animate-spin" /> : <Search className="w-6 h-6" />}
                 </button>
               </form>
+
+              {searchResults.length > 0 && (
+                <div className="space-y-2 mt-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
+                  <p className="text-[10px] text-text-dim uppercase tracking-[0.2em] mb-2 font-bold">Pick the right spot:</p>
+                  {searchResults.map((loc, i) => (
+                    <button
+                      key={i}
+                      onClick={() => handleSelectLocation(loc)}
+                      className="w-full p-4 glass-card bg-white/5 hover:bg-white/10 text-left text-sm text-text-main flex items-center gap-3 transition-colors border-white/5"
+                    >
+                      <MapPin className="w-4 h-4 text-primary shrink-0" />
+                      <span className="truncate">{loc.name}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              <p className="text-[10px] text-text-dim uppercase tracking-widest">Search worldwide. Start with your city.</p>
             </div>
           </motion.div>
         ) : (
@@ -176,18 +155,9 @@ export default function SkyDashboard() {
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="space-y-2 text-center md:text-left">
                 <h3 className="text-4xl font-black text-white italic tracking-tight">Sky Status</h3>
-                <div className="flex items-center gap-3 justify-center md:justify-start">
-                  <div className="flex items-center gap-2 text-text-dim text-xs uppercase tracking-widest">
-                    <MapPin className="w-3 h-3 text-primary" />
-                    {data.location}
-                  </div>
-                  <button 
-                    onClick={handleGetCurrentLocation}
-                    className="p-1 hover:bg-white/10 rounded-full transition-colors text-text-dim hover:text-primary"
-                    title="Refresh Location"
-                  >
-                    <Navigation className="w-3 h-3" />
-                  </button>
+                <div className="flex items-center gap-2 text-text-dim text-xs uppercase tracking-widest justify-center md:justify-start">
+                  <MapPin className="w-3 h-3 text-primary" />
+                  {data.location}
                 </div>
               </div>
 
@@ -215,6 +185,10 @@ export default function SkyDashboard() {
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-text-dim">PM10</span>
                     <span className="text-sm font-bold text-white">{data.pollutants.pm10} μg/m³</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-text-dim">Ozone (O3)</span>
+                    <span className="text-sm font-bold text-white">{data.pollutants.o3} μg/m³</span>
                   </div>
                 </div>
               </div>
@@ -277,6 +251,21 @@ export default function SkyDashboard() {
                     {isSearching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
                   </button>
                 </form>
+
+                {searchResults.length > 0 && (
+                  <div className="space-y-2 mt-4 max-h-[150px] overflow-y-auto pr-2 custom-scrollbar">
+                    {searchResults.map((loc, i) => (
+                      <button
+                        key={i}
+                        onClick={() => handleSelectLocation(loc)}
+                        className="w-full p-3 glass-card bg-white/5 hover:bg-white/10 text-left text-xs text-text-main flex items-center gap-3 transition-colors border-white/5"
+                      >
+                        <MapPin className="w-3 h-3 text-primary shrink-0" />
+                        <span className="truncate">{loc.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
                </div>
             </div>
           </motion.div>
