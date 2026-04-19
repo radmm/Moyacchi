@@ -6,9 +6,10 @@ import { FoodScanResult } from '../types';
 
 interface FoodScannerProps {
   onClose: () => void;
+  isEmbedded?: boolean;
 }
 
-export default function FoodScanner({ onClose }: FoodScannerProps) {
+export default function FoodScanner({ onClose, isEmbedded = false }: FoodScannerProps) {
   const [result, setResult] = useState<FoodScanResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -38,31 +39,38 @@ export default function FoodScanner({ onClose }: FoodScannerProps) {
     });
   };
 
+  const containerClasses = isEmbedded 
+    ? "w-full max-w-2xl mx-auto overflow-hidden flex flex-col min-h-[400px]" 
+    : "glass-card w-full max-w-xl mx-auto overflow-hidden flex flex-col min-h-[400px]";
+
   return (
     <motion.div 
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.9 }}
-      className="glass-card w-full max-w-xl mx-auto overflow-hidden flex flex-col min-h-[400px]"
+      initial={isEmbedded ? {} : { opacity: 0, scale: 0.9 }}
+      animate={isEmbedded ? {} : { opacity: 1, scale: 1 }}
+      exit={isEmbedded ? {} : { opacity: 0, scale: 0.9 }}
+      className={containerClasses}
     >
-      <div className="p-6 border-b border-glass-border flex items-center justify-between bg-white/5">
-        <div className="flex items-center gap-3">
-          <Camera className="w-6 h-6 text-primary" />
-          <h3 className="font-bold text-lg tracking-widest uppercase">Food Packet Scanner</h3>
+      {/* Header - Only show if not embedded */}
+      {!isEmbedded && (
+        <div className="p-6 border-b border-glass-border flex items-center justify-between bg-white/5">
+          <div className="flex items-center gap-3">
+            <Camera className="w-6 h-6 text-primary" />
+            <h3 className="font-bold text-lg tracking-widest uppercase">Food Packet Scanner</h3>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full">
+            <X className="w-5 h-5" />
+          </button>
         </div>
-        <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full">
-          <X className="w-5 h-5" />
-        </button>
-      </div>
+      )}
 
-      <div className="p-8 flex-1">
+      <div className={isEmbedded ? 'p-0 flex-1' : 'p-8 flex-1'}>
         <AnimatePresence mode="wait">
           {!result && !isLoading && (
             <motion.div 
               key="upload"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="flex flex-col items-center justify-center h-full space-y-6 text-center"
+              className={`flex flex-col items-center justify-center ${isEmbedded ? 'h-[300px]' : 'h-full'} space-y-6 text-center`}
             >
               <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
                 <Camera className="w-10 h-10 text-primary" />

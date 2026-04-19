@@ -8,11 +8,10 @@ import TrendTracker from './components/TrendTracker';
 import Mascot from './components/Mascot';
 import ShareCard from './components/ShareCard';
 import VisualEnvironment from './components/VisualEnvironment';
-import ChatInterface from './components/ChatInterface';
-import FoodScanner from './components/FoodScanner';
-import { DailyLog, AnalysisResult, HistoryItem, MascotStage } from './types';
+import BloomHub from './components/BloomHub';
+import { DailyLog, AnalysisResult, HistoryItem } from './types';
 import { analyzeHabits } from './lib/geminiService';
-import { Leaf, Info, LogIn, LogOut, MessageSquare, ScanLine } from 'lucide-react';
+import { Leaf, Info, LogIn, LogOut, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 const STORAGE_KEY = 'moyacchi_history';
@@ -24,8 +23,7 @@ export default function App() {
   const [currentResult, setCurrentResult] = useState<AnalysisResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showShare, setShowShare] = useState(false);
-  const [showChat, setShowChat] = useState(false);
-  const [showScanner, setShowScanner] = useState(false);
+  const [showBloom, setShowBloom] = useState(false);
   const [mascotMood, setMascotMood] = useState<'happy' | 'thinking' | 'cheering' | 'sad'>('happy');
 
   // Handle Auth State
@@ -75,7 +73,6 @@ export default function App() {
     setActiveLog(log);
     
     try {
-      // Pass last 3 days for context-aware brain
       const context = history.slice(0, 3);
       const result = await analyzeHabits(log, context);
       
@@ -137,11 +134,11 @@ export default function App() {
             {/* Auth Toggle */}
             <div className="absolute top-4 right-4 z-20">
               {user ? (
-                <button onClick={logout} className="p-2 bg-white/5 hover:bg-white/10 rounded-full border border-glass-border">
+                <button onClick={logout} className="p-2 bg-white/5 hover:bg-white/10 rounded-full border border-glass-border transition-colors">
                   <LogOut className="w-4 h-4 text-text-dim" />
                 </button>
               ) : (
-                <button onClick={loginWithGoogle} className="p-2 bg-primary/20 hover:bg-primary/30 rounded-full border border-primary/30">
+                <button onClick={loginWithGoogle} className="p-2 bg-primary/20 hover:bg-primary/30 rounded-full border border-primary/30 transition-colors">
                   <LogIn className="w-4 h-4 text-primary" />
                 </button>
               )}
@@ -170,22 +167,17 @@ export default function App() {
               </div>
             )}
 
-            {/* AI Tools Area */}
-            <div className="grid grid-cols-2 gap-3 w-full pt-6">
+            {/* Bloom Trigger */}
+            <div className="w-full pt-6">
               <button 
-                onClick={() => setShowChat(true)}
-                className="flex items-center justify-center gap-2 p-4 rounded-2xl bg-white/5 border border-glass-border hover:bg-white/10 transition-all group"
+                onClick={() => setShowBloom(true)}
+                className="w-full flex items-center justify-center gap-3 p-5 rounded-2xl bg-primary/10 border border-primary/30 hover:bg-primary/20 transition-all group relative overflow-hidden"
               >
-                <MessageSquare className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
-                <span className="text-[10px] font-bold uppercase tracking-wider">AI Coaching</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/5 to-primary/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                <Sparkles className="w-5 h-5 text-primary group-hover:rotate-12 transition-transform" />
+                <span className="text-xs font-black uppercase tracking-[0.2em] text-white">Discuss to Bloom</span>
               </button>
-              <button 
-                onClick={() => setShowScanner(true)}
-                className="flex items-center justify-center gap-2 p-4 rounded-2xl bg-white/5 border border-glass-border hover:bg-white/10 transition-all group"
-              >
-                <ScanLine className="w-4 h-4 text-secondary group-hover:scale-110 transition-transform" />
-                <span className="text-[10px] font-bold uppercase tracking-wider">Food Scan</span>
-              </button>
+              <p className="text-[9px] text-text-dim uppercase tracking-widest mt-3 text-center">Chat • Food scan • Eco Wisdom</p>
             </div>
           </div>
 
@@ -225,16 +217,7 @@ export default function App() {
         {/* Modals */}
         <AnimatePresence>
           {showShare && <ShareCard result={currentResult} onClose={() => setShowShare(false)} />}
-          {showChat && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/80 backdrop-blur-md">
-              <ChatInterface onClose={() => setShowChat(false)} />
-            </div>
-          )}
-          {showScanner && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/80 backdrop-blur-md">
-              <FoodScanner onClose={() => setShowScanner(false)} />
-            </div>
-          )}
+          {showBloom && <BloomHub onClose={() => setShowBloom(false)} />}
         </AnimatePresence>
       </div>
     </VisualEnvironment>

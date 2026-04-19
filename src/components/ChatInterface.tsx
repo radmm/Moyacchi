@@ -7,9 +7,10 @@ import Mascot from './Mascot';
 
 interface ChatInterfaceProps {
   onClose: () => void;
+  isEmbedded?: boolean;
 }
 
-export default function ChatInterface({ onClose }: ChatInterfaceProps) {
+export default function ChatInterface({ onClose, isEmbedded = false }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([
     { id: '1', role: 'assistant', content: "Hi! I'm Moyacchi. I'm here to help you brainstorm easy ways to live greener. What's on your mind? 🌿" }
   ]);
@@ -51,28 +52,34 @@ export default function ChatInterface({ onClose }: ChatInterfaceProps) {
     }
   };
 
+  const containerClasses = isEmbedded 
+    ? "flex flex-col h-full w-full overflow-hidden" 
+    : "glass-card flex flex-col h-[500px] w-full max-w-lg mx-auto overflow-hidden border-primary/20";
+
   return (
     <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 20 }}
-      className="glass-card flex flex-col h-[500px] w-full max-w-lg mx-auto overflow-hidden border-primary/20"
+      initial={isEmbedded ? {} : { opacity: 0, y: 20 }}
+      animate={isEmbedded ? {} : { opacity: 1, y: 0 }}
+      exit={isEmbedded ? {} : { opacity: 0, y: 20 }}
+      className={containerClasses}
     >
-      {/* Header */}
-      <div className="p-4 border-b border-glass-border flex items-center justify-between bg-white/5">
-        <div className="flex items-center gap-2">
-          <MessageCircle className="w-5 h-5 text-primary" />
-          <h3 className="font-bold text-sm tracking-widest uppercase">Wholesome Chat</h3>
+      {/* Header - Only show if not embedded */}
+      {!isEmbedded && (
+        <div className="p-4 border-b border-glass-border flex items-center justify-between bg-white/5">
+          <div className="flex items-center gap-2">
+            <MessageCircle className="w-5 h-5 text-primary" />
+            <h3 className="font-bold text-sm tracking-widest uppercase">Wholesome Chat</h3>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full">
+            <X className="w-4 h-4" />
+          </button>
         </div>
-        <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full">
-          <X className="w-4 h-4" />
-        </button>
-      </div>
+      )}
 
       {/* Messages */}
       <div 
         ref={scrollRef}
-        className="flex-1 overflow-y-auto p-6 space-y-6 flex flex-col"
+        className={`flex-1 overflow-y-auto ${isEmbedded ? 'px-0 py-6' : 'p-6'} space-y-6 flex flex-col scrollbar-hide`}
       >
         <AnimatePresence>
           {messages.map((msg) => (
