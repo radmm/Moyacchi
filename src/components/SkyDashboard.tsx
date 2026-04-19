@@ -41,6 +41,18 @@ export default function SkyDashboard() {
     }
   };
 
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    if (isLoading) {
+      timeoutId = setTimeout(() => {
+        setIsLoading(false);
+        setIsSearching(false);
+        setPermissionStatus('denied');
+      }, 15000); // 15 second safety cutoff
+    }
+    return () => clearTimeout(timeoutId);
+  }, [isLoading]);
+
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
@@ -66,9 +78,21 @@ export default function SkyDashboard() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center h-[500px] space-y-4">
-        <Loader2 className="w-10 h-10 text-primary animate-spin" />
-        <p className="text-text-dim text-sm uppercase tracking-widest animate-pulse">Mapping your Sky...</p>
+      <div className="flex flex-col items-center justify-center h-[500px] space-y-8">
+        <div className="relative">
+          <Loader2 className="w-12 h-12 text-primary animate-spin" />
+          <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full" />
+        </div>
+        <div className="space-y-2 text-center">
+          <p className="text-text-main font-bold text-lg animate-pulse">Mapping your Sky...</p>
+          <p className="text-text-dim text-xs uppercase tracking-widest">Bridging local air data</p>
+        </div>
+        <button 
+          onClick={() => { setIsLoading(false); setIsSearching(false); }}
+          className="px-6 py-2 bg-white/5 hover:bg-white/10 rounded-full border border-glass-border text-xs text-text-dim hover:text-white transition-all"
+        >
+          Cancel & Try Manual
+        </button>
       </div>
     );
   }
@@ -92,9 +116,9 @@ export default function SkyDashboard() {
               <Navigation className="w-8 h-8 text-primary" />
             </div>
             <div className="space-y-3">
-              <h3 className="text-2xl font-bold text-white">Share your Sky</h3>
+              <h3 className="text-2xl font-bold text-white">Global Sky-Link</h3>
               <p className="text-sm text-text-dim max-w-xs mx-auto leading-relaxed">
-                Connect your real-time environment to receive personal health tips and local air quality streaks.
+                Connect your real-time environment to receive personal health tips. Moyacchi tracks worldwide air quality using the global US-EPA standard.
               </p>
             </div>
             
@@ -152,9 +176,18 @@ export default function SkyDashboard() {
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="space-y-2 text-center md:text-left">
                 <h3 className="text-4xl font-black text-white italic tracking-tight">Sky Status</h3>
-                <div className="flex items-center gap-2 text-text-dim text-xs uppercase tracking-widest justify-center md:justify-start">
-                  <MapPin className="w-3 h-3 text-primary" />
-                  {data.location}
+                <div className="flex items-center gap-3 justify-center md:justify-start">
+                  <div className="flex items-center gap-2 text-text-dim text-xs uppercase tracking-widest">
+                    <MapPin className="w-3 h-3 text-primary" />
+                    {data.location}
+                  </div>
+                  <button 
+                    onClick={handleGetCurrentLocation}
+                    className="p-1 hover:bg-white/10 rounded-full transition-colors text-text-dim hover:text-primary"
+                    title="Refresh Location"
+                  >
+                    <Navigation className="w-3 h-3" />
+                  </button>
                 </div>
               </div>
 
