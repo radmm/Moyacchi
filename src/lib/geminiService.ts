@@ -1,5 +1,5 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import { DailyLog, AnalysisResult, HistoryItem, MascotStage, ChatMessage, FoodScanResult } from "../types";
+import { DailyLog, AnalysisResult, HistoryItem, MascotStage, ChatMessage, ImageAnalysisResult } from "../types";
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY || "",
@@ -43,7 +43,7 @@ const ANALYSIS_SCHEMA = {
   required: ["score", "grade", "pros", "swaps", "encouragement", "metaphor", "mascotStage"],
 };
 
-const FOOD_SCAN_SCHEMA = {
+const IMAGE_ANALYSE_SCHEMA = {
   type: Type.OBJECT,
   properties: {
     productName: { type: Type.STRING },
@@ -51,8 +51,18 @@ const FOOD_SCAN_SCHEMA = {
     hiddenIngredients: { type: Type.ARRAY, items: { type: Type.STRING }, description: "Eco-unfriendly or processed additives" },
     environmentImpact: { type: Type.STRING },
     healthImpact: { type: Type.STRING },
+    packaging: {
+      type: Type.OBJECT,
+      properties: {
+        material: { type: Type.STRING, description: "Identified packaging material (e.g. Cardboard, Plastic Type 1)" },
+        recyclability: { type: Type.STRING, description: "How to recycle this (e.g. Recyclable, Return to Store)" },
+        wasteClassification: { type: Type.STRING, description: "Classification (e.g. Dry Waste, Recyclable Waste)" },
+        ecoTip: { type: Type.STRING, description: "A quick tip for disposing of this packaging greenly" },
+      },
+      required: ["material", "recyclability", "wasteClassification", "ecoTip"],
+    },
   },
-  required: ["productName", "impactScore", "hiddenIngredients", "environmentImpact", "healthImpact"],
+  required: ["productName", "impactScore", "hiddenIngredients", "environmentImpact", "healthImpact", "packaging"],
 };
 
 const HABIT_IDENTIFICATION_SCHEMA = {
@@ -128,8 +138,8 @@ export async function identifyHabitsFromImage(base64Image: string): Promise<Dail
   }
 }
 
-export async function scanFoodPacket(base64Image: string): Promise<FoodScanResult> {
-  const prompt = "Scan this food product label/ingredients. Identify hidden ingredients (like palm oil, additives) and assess environmental and health impact.";
+export async function analyseImage(base64Image: string): Promise<ImageAnalysisResult> {
+  const prompt = "Scan this product label/ingredients and its packaging. Identify hidden ingredients (like palm oil, additives) and assess environmental and health impact. ALSO, identify the packaging material and classify its waste/recyclability type (Green-Sight OCR).";
   
   try {
     const response = await ai.models.generateContent({
@@ -140,13 +150,13 @@ export async function scanFoodPacket(base64Image: string): Promise<FoodScanResul
       ],
       config: {
         responseMimeType: "application/json",
-        responseSchema: FOOD_SCAN_SCHEMA as any,
+        responseSchema: IMAGE_ANALYSE_SCHEMA as any,
       },
     });
 
     return JSON.parse(response.text.trim());
   } catch (error) {
-    console.error("Food Scan Error:", error);
+    console.error("Image Analysis Error:", error);
     throw error;
   }
 }

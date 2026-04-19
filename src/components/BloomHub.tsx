@@ -1,22 +1,23 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { MessageSquare, ScanLine, Sparkles, X, ChevronRight, Lightbulb, History, Info } from 'lucide-react';
+import { MessageSquare, ScanLine, Sparkles, X, ChevronRight, Cloud, Info } from 'lucide-react';
 import ChatInterface from './ChatInterface';
-import FoodScanner from './FoodScanner';
+import ImageAnalyser from './ImageAnalyser';
+import SkyDashboard from './SkyDashboard';
 
 interface BloomHubProps {
   onClose: () => void;
 }
 
-type BloomTab = 'chat' | 'scan' | 'tips';
+type BloomTab = 'chat' | 'analyse' | 'sky';
 
 export default function BloomHub({ onClose }: BloomHubProps) {
   const [activeTab, setActiveTab] = useState<BloomTab>('chat');
 
   const tabs = [
     { id: 'chat', label: 'Discuss to Bloom', icon: MessageSquare, color: 'text-primary' },
-    { id: 'scan', label: 'Food Scan', icon: ScanLine, color: 'text-secondary' },
-    { id: 'tips', label: 'Eco Wisdom', icon: Lightbulb, color: 'text-yellow-400' },
+    { id: 'analyse', label: 'Analyse', icon: ScanLine, color: 'text-secondary' },
+    { id: 'sky', label: 'Sky', icon: Cloud, color: 'text-sky-400' },
   ];
 
   const ecoTrivia = [
@@ -109,44 +110,27 @@ export default function BloomHub({ onClose }: BloomHubProps) {
                 </motion.div>
               )}
 
-              {activeTab === 'scan' && (
+              {activeTab === 'analyse' && (
                 <motion.div 
-                  key="scan"
+                  key="analyse"
                   initial={{ opacity: 0, scale: 0.98 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.98 }}
                   className="h-full flex items-center justify-center lg:pt-10"
                 >
-                  <FoodScanner onClose={() => {}} isEmbedded />
+                  <ImageAnalyser onClose={() => {}} isEmbedded />
                 </motion.div>
               )}
 
-              {activeTab === 'tips' && (
+              {activeTab === 'sky' && (
                 <motion.div 
-                  key="tips"
+                  key="sky"
                   initial={{ opacity: 0, scale: 0.98 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.98 }}
-                  className="space-y-10 max-w-2xl mx-auto"
+                  className="h-full"
                 >
-                  <div className="space-y-2 text-center">
-                    <h3 className="text-4xl font-black text-white italic tracking-tight">Eco Wisdom</h3>
-                    <p className="text-text-dim text-sm uppercase tracking-[0.3em]">Bite-sized sustainability</p>
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-6">
-                    {[
-                      { title: "Energy Saver", content: "Unplugging electronics when not in use can save up to 10% on your energy bill. 🔌" },
-                      { title: "Water Warrior", content: "A 5-minute shower uses about 10-25 gallons of water, while a bath uses up to 70. 🚿" },
-                      { title: "Meatless Monday", content: "Skipping meat just once a week for a year saves as much CO2 as driving 350 miles. 🍔" },
-                      { title: "Plastic Free", content: "The world uses 5 trillion plastic bags every year. Most end up in our oceans. 🌊" }
-                    ].map((tip, i) => (
-                      <div key={i} className="glass-card p-6 border-white/5 bg-white/[0.02] hover:bg-white/5 transition-all">
-                        <h4 className="text-primary font-bold text-sm uppercase tracking-widest mb-2">{tip.title}</h4>
-                        <p className="text-text-main text-sm leading-relaxed">{tip.content}</p>
-                      </div>
-                    ))}
-                  </div>
+                  <SkyDashboard />
                 </motion.div>
               )}
             </AnimatePresence>

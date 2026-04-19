@@ -29,10 +29,33 @@ export interface ChatMessage {
   id: string;
 }
 
-export interface FoodScanResult {
+export interface ImageAnalysisResult {
   productName: string;
   impactScore: number; // 0-100
   hiddenIngredients: string[]; // e.g. palm oil
   environmentImpact: string;
   healthImpact: string;
+  packaging: {
+    material: string; // e.g. "Plastic PET", "Cardboard"
+    recyclability: string; // e.g. "Recyclable", "Check Local", "Landfill"
+    wasteClassification: string; // e.g. "Dry Waste", "Hazardous"
+    ecoTip: string;
+  };
+}
+
+export interface SkyData {
+  aqi: number;
+  aqiLabel: string;
+  pollutants: {
+    pm25: number;
+    pm10: number;
+    o3: number;
+  };
+  pollen: {
+    grass: number;
+    tree: number;
+    weed: number;
+  };
+  location: string;
+  timestamp: number;
 }
