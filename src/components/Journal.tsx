@@ -57,47 +57,49 @@ export default function Journal({ history, onShare }: JournalProps) {
                 transition={{ delay: idx * 0.1 }}
                 className="group relative"
               >
-                {/* Date Anchor */}
-                <div className="absolute -left-4 top-0 -translate-x-full hidden lg:block">
-                   <div className="text-6xl font-black text-white/5 font-serif leading-none select-none">
-                     {new Date(item.date).getDate()}
-                   </div>
-                </div>
-
-                <div className="glass-card p-8 border-white/5 bg-white/[0.02] hover:bg-white/[0.05] transition-all group-hover:border-primary/20">
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-2 text-text-dim text-[10px] uppercase tracking-widest">
-                      <Calendar className="w-3 h-3" />
-                      {new Date(item.date).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric' })}
-                    </div>
-                    <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${item.isSummary ? 'bg-secondary/20 text-secondary border border-secondary/30' : 'bg-primary/20 text-primary border border-primary/30'}`}>
-                      {item.isSummary ? 'Weekly Summary' : `Score: ${item.analysis.score}`}
-                    </div>
+                <div className="glass-card p-8 border-white/5 bg-white/[0.02] hover:bg-white/[0.05] transition-all group-hover:border-primary/20 relative overflow-hidden">
+                  {/* Large background date - fixed alignment */}
+                  <div className="absolute -right-2 -top-4 pointer-events-none select-none opacity-5 group-hover:opacity-10 transition-opacity">
+                    <span className="text-[120px] font-black font-serif leading-none">
+                      {new Date(item.date).getDate()}
+                    </span>
                   </div>
 
-                  <p className="text-sm text-text-main leading-relaxed italic border-l-2 border-primary/30 pl-4 mb-6 opacity-90">
-                    "{item.analysis.encouragement}"
-                  </p>
-
-                  <div className="space-y-4 mb-6">
-                    <div className="flex items-center gap-3">
-                      <div className="w-1 h-1 bg-primary rounded-full" />
-                      <span className="text-[11px] text-text-dim uppercase tracking-wider">Top Achievement</span>
+                  <div className="relative z-10 space-y-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-text-dim text-[10px] uppercase tracking-widest">
+                        <Calendar className="w-3 h-3" />
+                        {new Date(item.date).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric' })}
+                      </div>
+                      <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${item.isSummary ? 'bg-secondary/20 text-secondary border border-secondary/30' : 'bg-primary/20 text-primary border border-primary/30'}`}>
+                        {item.isSummary ? 'Weekly Summary' : `Score: ${item.analysis.score}`}
+                      </div>
                     </div>
-                    <p className="text-xs text-text-main">{item.analysis.pros[0]}</p>
-                  </div>
 
-                  <div className="pt-6 border-t border-white/5 flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-[10px] text-text-dim uppercase tracking-widest font-bold">
-                      <Leaf className="w-3 h-3 text-secondary" />
-                      {(item.logs?.length ?? 1)} Actions Recorded
+                    <p className="text-sm text-text-main leading-relaxed italic border-l-2 border-primary/30 pl-4 opacity-90">
+                      "{item.analysis.encouragement}"
+                    </p>
+
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-1 h-1 bg-primary rounded-full" />
+                        <span className="text-[11px] text-text-dim uppercase tracking-wider">Top Achievement</span>
+                      </div>
+                      <p className="text-xs text-text-main">{item.analysis.pros[0]}</p>
                     </div>
-                    <button 
-                      onClick={() => onShare(item)}
-                      className="p-2 hover:bg-white/10 rounded-full text-text-dim hover:text-white transition-colors"
-                    >
-                      <Share2 className="w-4 h-4" />
-                    </button>
+
+                    <div className="pt-6 border-t border-white/5 flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-[10px] text-text-dim uppercase tracking-widest font-bold">
+                        <Leaf className="w-3 h-3 text-secondary" />
+                        {(item.logs?.length ?? 1)} Actions Recorded
+                      </div>
+                      <button 
+                        onClick={() => onShare(item)}
+                        className="p-2 hover:bg-white/10 rounded-full text-text-dim hover:text-white transition-colors"
+                      >
+                        <Share2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </motion.div>

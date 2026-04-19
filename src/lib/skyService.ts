@@ -1,12 +1,32 @@
 import { SkyData } from "../types";
 
-export async function fetchSkyData(lat?: number, lon?: number): Promise<SkyData> {
+export async function searchLocation(query: string): Promise<{ lat: number, lon: number, name: string } | null> {
+  try {
+    const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=1&language=en&format=json`;
+    const response = await fetch(url);
+    const data = await response.json();
+    
+    if (data.results && data.results.length > 0) {
+      const result = data.results[0];
+      return {
+        lat: result.latitude,
+        lon: result.longitude,
+        name: `${result.name}, ${result.country}`
+      };
+    }
+    return null;
+  } catch (error) {
+    console.error("Geocoding Error:", error);
+    return null;
+  }
+}
+
+export async function fetchSkyData(lat?: number, lon?: number, locationName?: string): Promise<SkyData> {
   // Default to Singapore
   const latitude = lat ?? 1.3521;
   const longitude = lon ?? 103.8198;
 
   try {
-    // We split into core AQI and optional Pollen to prevent 400 errors in regions without pollen data
     const aqiUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${latitude}&longitude=${longitude}&current=european_aqi,pm10,pm2_5`;
     const pollenUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${latitude}&longitude=${longitude}&hourly=alnus_pollen,betula_pollen,grass_pollen,mugwort_pollen,olive_pollen,ragweed_pollen`;
 
@@ -54,7 +74,7 @@ export async function fetchSkyData(lat?: number, lon?: number): Promise<SkyData>
         o3: 0,
       },
       pollen,
-      location: lat ? "Your Location" : "Singapore (Local)",
+      location: locationName || (lat ? "Current Location" : "Singapore (Local)"),
       timestamp: Date.now(),
     };
   } catch (error) {
