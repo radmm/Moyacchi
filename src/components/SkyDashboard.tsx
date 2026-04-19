@@ -22,17 +22,22 @@ export default function SkyDashboard() {
             setData(skyData);
             setPermissionStatus('granted');
           } catch (err) {
-            console.error(err);
+            console.error("Fetch Data Error:", err);
+            setPermissionStatus('denied');
           } finally {
             setIsLoading(false);
           }
         },
-        () => {
+        (error) => {
+          console.error("Geolocation Error:", error);
           setPermissionStatus('denied');
-        }
+          alert("Moyacchi can't find you! Please check if location access is blocked by your browser settings. 📍");
+        },
+        { timeout: 10000, enableHighAccuracy: true, maximumAge: 60000 }
       );
     } else {
       setPermissionStatus('denied');
+      alert("Your browser doesn't support the Sky-Link. Use manual search below! 🌍");
     }
   };
 
@@ -97,14 +102,19 @@ export default function SkyDashboard() {
               <button 
                 onClick={handleGetCurrentLocation}
                 disabled={permissionStatus === 'loading'}
-                className="btn-primary py-5 rounded-[24px] flex items-center justify-center gap-3 w-full"
+                className={`btn-primary py-5 rounded-[24px] flex items-center justify-center gap-3 w-full transition-all ${permissionStatus === 'loading' ? 'opacity-70 scale-95' : 'hover:scale-[1.02]'}`}
               >
                 {permissionStatus === 'loading' ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>Locating...</span>
+                  </>
                 ) : (
-                  <Navigation className="w-5 h-5" />
+                  <>
+                    <Navigation className="w-5 h-5" />
+                    <span>Use Current Location</span>
+                  </>
                 )}
-                <span>Use Current Location</span>
               </button>
               
               <div className="relative flex items-center">
