@@ -1,6 +1,6 @@
 {
   "name": "Moyacchi",
-  "description": "A wholesome AI-powered daily habit logger for eco-friendly living. Track your transport, diet, and energy use with personalized feedback from your eco-buddy.",
-  "requestFramePermissions": [],
-  "majorCapabilities": []
+  "description": "A deep-tech eco-companion that evolves with your habits. Featuring Gemini-powered habit vision, OCR food scanning, and wholesome AI coaching.",
+  "requestFramePermissions": ["camera", "geolocation"],
+  "majorCapabilities": ["vision", "ocr"]
 }

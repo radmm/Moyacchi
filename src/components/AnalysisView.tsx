@@ -26,8 +26,15 @@ export default function AnalysisView({ result, onShare, onReset, onEdit }: Analy
           <div className="text-8xl font-black text-primary drop-shadow-[0_0_15px_rgba(166,255,0,0.5)] leading-none mb-2">
             {result.score}
           </div>
-          <div className="px-4 py-1.5 bg-primary/20 text-primary rounded-full font-bold text-sm border border-primary/30">
+          <div className="px-4 py-1.5 bg-primary/20 text-primary rounded-full font-bold text-sm border border-primary/30 mb-6">
             {result.grade}
+          </div>
+
+          <div className="mt-4 p-4 bg-white/5 rounded-xl border border-glass-border">
+            <p className="text-[10px] font-black uppercase text-primary tracking-widest mb-2">Real-World Impact</p>
+            <p className="text-xs text-text-main italic leading-relaxed">
+              You helped by {result.metaphor} today!
+            </p>
           </div>
         </div>
 
