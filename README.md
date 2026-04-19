@@ -30,3 +30,11 @@ A chronological record of your environmental footprint grouped by month. Track y
 
 **Guest + Cloud Sync**
 Full functionality without an account via localStorage. Sign in with Google and everything syncs to Firestore instantly.
+
+---
+
+## Submission
+
+Built for the [Dev.to Weekend Challenge ; Earth Day Edition](https://dev.to/challenges/weekend-2026-04-16)
+
+[Read the full submission on Dev.to](https://dev.to/devishwas)
