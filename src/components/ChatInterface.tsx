@@ -95,7 +95,9 @@ export default function ChatInterface({ onClose, isEmbedded = false }: ChatInter
                   ? 'bg-primary text-black font-medium' 
                   : 'bg-white/5 border border-glass-border text-text-main'
               }`}>
-                <div className="prose prose-sm prose-invert max-w-none prose-p:leading-relaxed prose-headings:mb-2 prose-headings:mt-4 first:prose-headings:mt-0">
+                <div className={`prose prose-sm max-w-none prose-p:leading-relaxed prose-headings:mb-2 prose-headings:mt-4 first:prose-headings:mt-0 ${
+                  msg.role === 'user' ? '[&_*]:text-black' : 'prose-invert'
+                }`}>
                   <ReactMarkdown>{msg.content}</ReactMarkdown>
                 </div>
               </div>
