@@ -18,15 +18,41 @@ export default function ImageAnalyser({ onClose, isEmbedded = false }: ImageAnal
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Check if file is too large (> 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      alert("This image is a bit too heavy for Moyacchi! Try a smaller photo (under 10MB). 📸");
+      return;
+    }
+
     setIsLoading(true);
+    let isStillLoading = true;
+    
+    // Set a client-side safety timeout
+    const timeout = setTimeout(() => {
+      if (isStillLoading) {
+        setIsLoading(false);
+        isStillLoading = false;
+        alert("Moyacchi is taking longer than usual to think. Please try again! 🌿");
+      }
+    }, 45000); // 45 second timeout for AI vision
+
     try {
       const base64 = await toBase64(file);
       const scanResult = await analyseImage(base64);
-      setResult(scanResult);
+      if (isStillLoading) {
+        setResult(scanResult);
+      }
     } catch (error) {
-      alert("Moyacchi couldn't analyze the item! Try a clearer photo. 📸");
+      if (isStillLoading) {
+        console.error("Analysis Error:", error);
+        alert("Moyacchi couldn't analyze the item! Try a clearer photo or a different item. 📸");
+      }
     } finally {
-      setIsLoading(false);
+      clearTimeout(timeout);
+      if (isStillLoading) {
+        setIsLoading(false);
+        isStillLoading = false;
+      }
     }
   };
 

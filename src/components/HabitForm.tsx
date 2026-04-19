@@ -41,15 +41,39 @@ export default function HabitForm({ onSubmit, isLoading, initialValues, isEditin
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Size check
+    if (file.size > 10 * 1024 * 1024) {
+      alert("This image is a bit too heavy! Try a smaller photo (under 10MB). 🌿");
+      return;
+    }
+
     setIsIdentifying(true);
+    let isStillProcessing = true;
+
+    const timeout = setTimeout(() => {
+      if (isStillProcessing) {
+        setIsIdentifying(false);
+        isStillProcessing = false;
+        alert("Moyacchi is taking a while to process this image. Please try again! 📸");
+      }
+    }, 45000);
+
     try {
       const base64 = await toBase64(file);
       const identifiedLog = await identifyHabitsFromImage(base64);
-      setLog(identifiedLog);
+      if (isStillProcessing) {
+        setLog(identifiedLog);
+      }
     } catch (error) {
-      alert("Moyacchi's vision is a bit blurred! Try another photo? 📸");
+      if (isStillProcessing) {
+        alert("Moyacchi's vision is a bit blurred! Try another photo? 📸");
+      }
     } finally {
-      setIsIdentifying(false);
+      clearTimeout(timeout);
+      if (isStillProcessing) {
+        setIsIdentifying(false);
+        isStillProcessing = false;
+      }
     }
   };
 

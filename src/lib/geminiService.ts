@@ -145,7 +145,17 @@ export async function identifyHabitsFromImage(base64Image: string): Promise<Dail
 }
 
 export async function analyseImage(base64Image: string): Promise<ImageAnalysisResult> {
-  const prompt = "Scan this product label/ingredients and its packaging. Identify hidden ingredients (like palm oil, additives) and assess environmental and health impact. ALSO, identify the packaging material and classify its waste/recyclability type (Green-Sight OCR).";
+  const prompt = `
+    Conduct a "Green-Sight" scan on this image. 
+    1. Identify the item or product. 
+    2. If it's a food/consumable, scan for ingredients and list concerns (palm oil, high processing, etc.). 
+    3. If it's a non-food item or waste, focus on identifying the material (plastic types, metals, wood, etc.).
+    4. Classify the waste for disposal (Recyclable, Compostable, Hazardous, or landfill).
+    5. Assess the environmental impact.
+
+    If a field is not applicable (e.g., hidden ingredients for a piece of wood), return an empty array or "N/A".
+    You MUST provide a response that fits the schema.
+  `;
   
   try {
     const response = await ai.models.generateContent({
@@ -160,7 +170,9 @@ export async function analyseImage(base64Image: string): Promise<ImageAnalysisRe
       },
     });
 
-    return JSON.parse(response.text.trim());
+    const text = response.text;
+    if (!text) throw new Error("Moyacchi's lens is foggy (Empty response)");
+    return JSON.parse(text.trim());
   } catch (error) {
     console.error("Image Analysis Error:", error);
     throw error;
