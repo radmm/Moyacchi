@@ -37,4 +37,4 @@ Full functionality without an account via localStorage. Sign in with Google and 
 
 Built for the [Dev.to Weekend Challenge ; Earth Day Edition](https://dev.to/challenges/weekend-2026-04-16)
 
-[Read the full submission on Dev.to](https://dev.to/devishwas)
+[Read the full submission on Dev.to]([https://dev.to/devishwas](https://dev.to/devishwas/moyacchi-your-ai-eco-companion-487n))
