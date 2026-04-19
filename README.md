@@ -1,20 +1,32 @@
 <div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+<img src="https://cdn.discordapp.com/attachments/1463227227507527776/1495552001646530663/Untitled40_20260420033957.jpg?ex=69e6a8d7&is=69e55757&hm=5c1326f9f92901146bfacc8d2fb91fe92deaaff0a069303a0041fd8c243b3d8d&" />
+
+### Moyacchi ; Your AI Eco Companion
+**Track your habits. Understand your impact. Grow together.**
+
 </div>
 
-# Run and deploy your AI Studio app
+---
 
-This contains everything you need to run your app locally.
+## Features
 
-View your app in AI Studio: https://ai.studio/apps/e7f857ba-1180-4658-99de-69b030142164
+**Daily Stack Analysis**
+Log your day across three dimensions ; transportation, food, and energy use. Moyacchi analyses the entire day at once using Google Gemini Flash and returns a score, performance grade, behavioral swaps, and a real-world impact metaphor.
 
-## Run Locally
+**Evolving Companion**
+Moyacchi grows with your progress through four stages ; Seed, Sprout, Bloom, Glow. The better your habits, the more he evolves.
 
-**Prerequisites:**  Node.js
+**Green-Sight OCR**
+Snap any product label. Moyacchi identifies harmful ingredients, packaging material, waste classification, and disposal guidance in real time.
 
+**AI Eco Coach**
+A conversational AI coach powered by Gemini. Ask anything about sustainable living ; no lectures, no guilt.
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+**Sky Dashboard**
+Live air quality for any city on earth. AQI, six pollutants, pollen levels ; powered by Open-Meteo, completely free and open.
+
+**Journal**
+A chronological record of your environmental footprint grouped by month. Track your streak, revisit your wins, and export a shareable impact card for any entry.
+
+**Guest + Cloud Sync**
+Full functionality without an account via localStorage. Sign in with Google and everything syncs to Firestore instantly.
