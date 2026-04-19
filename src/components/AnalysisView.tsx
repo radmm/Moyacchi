@@ -6,9 +6,10 @@ interface AnalysisViewProps {
   result: AnalysisResult;
   onShare: () => void;
   onReset: () => void;
+  onEdit: () => void;
 }
 
-export default function AnalysisView({ result, onShare, onReset }: AnalysisViewProps) {
+export default function AnalysisView({ result, onShare, onReset, onEdit }: AnalysisViewProps) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -39,8 +40,11 @@ export default function AnalysisView({ result, onShare, onReset }: AnalysisViewP
             </h4>
             <div className="space-y-4">
               {result.pros.map((pro, i) => (
-                <div key={i} className="bg-white/5 p-4 rounded-2xl text-text-main text-sm border border-glass-border leading-relaxed">
-                  {pro}
+                <div key={i} className="bg-white/5 p-4 rounded-xl text-text-main text-sm border border-glass-border flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-primary/20 text-primary flex items-center justify-center flex-shrink-0 text-[10px] font-black">
+                    {i + 1}
+                  </div>
+                  <div className="leading-relaxed">{pro}</div>
                 </div>
               ))}
             </div>
@@ -53,8 +57,11 @@ export default function AnalysisView({ result, onShare, onReset }: AnalysisViewP
             </h4>
             <div className="space-y-4">
               {result.swaps.map((swap, i) => (
-                <div key={i} className="bg-white/5 p-4 rounded-2xl text-text-main text-sm border border-glass-border leading-relaxed">
-                  {swap}
+                <div key={i} className="bg-white/5 p-4 rounded-xl text-text-main text-sm border border-glass-border flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-secondary/20 text-secondary flex items-center justify-center flex-shrink-0 text-[10px] font-black">
+                    {i + 1}
+                  </div>
+                  <div className="leading-relaxed">{swap}</div>
                 </div>
               ))}
             </div>
@@ -71,10 +78,16 @@ export default function AnalysisView({ result, onShare, onReset }: AnalysisViewP
             Share Card
           </button>
           <button
+            onClick={onEdit}
+            className="px-6 py-3 bg-white/10 hover:bg-white/20 text-text-main rounded-full font-bold text-sm transition-colors border border-glass-border"
+          >
+            Edit Log
+          </button>
+          <button
             onClick={onReset}
             className="px-6 py-3 bg-white/10 hover:bg-white/20 text-text-main rounded-full font-bold text-sm transition-colors border border-glass-border"
           >
-            Reset
+            New Log
           </button>
         </div>
       </div>

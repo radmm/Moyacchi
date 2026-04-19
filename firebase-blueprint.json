@@ -1,0 +1,54 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Basic user profile information.",
+      "type": "object",
+      "properties": {
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "lastSeen": { "type": "string", "format": "date-time" }
+      },
+      "required": ["email"]
+    },
+    "HistoryItem": {
+      "title": "History Item",
+      "description": "A single eco-habit log and its analysis.",
+      "type": "object",
+      "properties": {
+        "log": {
+          "type": "object",
+          "properties": {
+            "transport": { "type": "string" },
+            "food": { "type": "string" },
+            "energy": { "type": "string" },
+            "timestamp": { "type": "number" }
+          }
+        },
+        "analysis": {
+          "type": "object",
+          "properties": {
+            "score": { "type": "number" },
+            "grade": { "type": "string" },
+            "pros": { "type": "array", "items": { "type": "string" } },
+            "swaps": { "type": "array", "items": { "type": "string" } },
+            "encouragement": { "type": "string" }
+          }
+        },
+        "date": { "type": "string" }
+      },
+      "required": ["log", "analysis", "date"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile document."
+    },
+    "/users/{userId}/history/{date}": {
+      "schema": "HistoryItem",
+      "description": "Daily eco-habit logs for a specific user."
+    }
+  }
+}

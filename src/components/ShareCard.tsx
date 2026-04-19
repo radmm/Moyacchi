@@ -42,7 +42,7 @@ export default function ShareCard({ result, onClose }: ShareCardProps) {
           </div>
 
           <div className="bg-white/5 p-5 rounded-3xl border border-glass-border w-full text-sm italic text-text-main leading-relaxed">
-            "{result.encouragement}"
+            {result.encouragement}
           </div>
 
           <div className="text-[9px] text-text-dim font-bold tracking-[0.3em] uppercase pt-4">

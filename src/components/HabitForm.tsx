@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DailyLog } from '../types';
 import { Bus, Utensils, Zap, Send } from 'lucide-react';
 import { motion } from 'motion/react';
@@ -6,15 +6,23 @@ import { motion } from 'motion/react';
 interface HabitFormProps {
   onSubmit: (log: DailyLog) => void;
   isLoading: boolean;
+  initialValues?: DailyLog | null;
 }
 
-export default function HabitForm({ onSubmit, isLoading }: HabitFormProps) {
-  const [log, setLog] = useState<DailyLog>({
+export default function HabitForm({ onSubmit, isLoading, initialValues }: HabitFormProps) {
+  const [log, setLog] = useState<DailyLog>(initialValues || {
     transport: '',
     food: '',
     energy: '',
     timestamp: Date.now(),
   });
+
+  // Update logic if initialValues change (e.g. when clicking Edit)
+  useEffect(() => {
+    if (initialValues) {
+      setLog(initialValues);
+    }
+  }, [initialValues]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
