@@ -41,37 +41,45 @@ export default function AnalysisView({ result, onShare, onReset, onEdit }: Analy
             </div>
 
             {/* Details Grid */}
-            <div className="flex-1 grid md:grid-cols-2 gap-10">
+            <div className="flex-1 grid grid-cols-1 xl:grid-cols-2 gap-10">
               <div className="space-y-6">
                 <h4 className="text-[11px] font-black tracking-[0.2em] text-primary uppercase flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4" />
+                  <CheckCircle2 className="w-5 h-5" />
                   Eco-Hero Wins
                 </h4>
-                <div className="space-y-4">
+                <div className="grid grid-cols-1 gap-4">
                   {result.pros.map((pro, i) => (
-                    <div key={i} className="bg-white/5 p-4 rounded-xl text-text-main text-sm border border-glass-border flex items-start gap-3">
-                      <div className="w-5 h-5 rounded-full bg-primary/20 text-primary flex items-center justify-center flex-shrink-0 text-[10px] font-black">
+                    <motion.div 
+                      key={i} 
+                      whileHover={{ x: 5 }}
+                      className="bg-white/5 p-5 rounded-2xl text-text-main text-sm border border-glass-border flex items-center gap-5 group transition-all hover:bg-white/10"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 text-xs font-black border border-primary/20 group-hover:scale-110 transition-transform">
                         {i + 1}
                       </div>
-                      <div className="leading-relaxed">{pro}</div>
-                    </div>
+                      <div className="font-medium opacity-90 leading-snug">{pro}</div>
+                    </motion.div>
                   ))}
                 </div>
               </div>
               
               <div className="space-y-6">
                 <h4 className="text-[11px] font-black tracking-[0.2em] text-secondary uppercase flex items-center gap-2">
-                  <RefreshCcw className="w-4 h-4" />
+                  <RefreshCcw className="w-5 h-5" />
                   Green Swaps
                 </h4>
-                <div className="space-y-4">
+                <div className="grid grid-cols-1 gap-4">
                   {result.swaps.map((swap, i) => (
-                    <div key={i} className="bg-white/5 p-4 rounded-xl text-text-main text-sm border border-glass-border flex items-start gap-3">
-                      <div className="w-5 h-5 rounded-full bg-secondary/20 text-secondary flex items-center justify-center flex-shrink-0 text-[10px] font-black">
+                    <motion.div 
+                      key={i} 
+                      whileHover={{ x: 5 }}
+                      className="bg-white/5 p-5 rounded-2xl text-text-main text-sm border border-glass-border flex items-center gap-5 group transition-all hover:bg-white/10"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-secondary/10 text-secondary flex items-center justify-center flex-shrink-0 text-xs font-black border border-secondary/20 group-hover:scale-110 transition-transform">
                         {i + 1}
                       </div>
-                      <div className="leading-relaxed">{swap}</div>
-                    </div>
+                      <div className="font-medium opacity-90 leading-snug">{swap}</div>
+                    </motion.div>
                   ))}
                 </div>
               </div>
