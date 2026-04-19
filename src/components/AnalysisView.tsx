@@ -24,7 +24,7 @@ export default function AnalysisView({ result, onShare, onReset, onEdit }: Analy
           <div className="flex flex-col lg:flex-row gap-10">
             {/* Score Column */}
             <div className="flex flex-col items-center justify-center text-center space-y-2 lg:border-r border-glass-border lg:pr-10 lg:min-w-[240px]">
-              <span className="text-xs font-bold text-text-dim tracking-widest uppercase">Daily Eco Score</span>
+              <span className="text-xs font-bold text-text-dim tracking-widest uppercase">Stack Score</span>
               <div className="text-8xl font-black text-primary drop-shadow-[0_0_15px_rgba(166,255,0,0.5)] leading-none mb-2">
                 {result.score}
               </div>
@@ -101,13 +101,13 @@ export default function AnalysisView({ result, onShare, onReset, onEdit }: Analy
               onClick={onEdit}
               className="flex-1 px-8 py-4 bg-white/10 hover:bg-white/20 text-text-main rounded-full font-bold text-sm transition-colors border border-glass-border"
             >
-              Edit Log
+              Back to Stack
             </button>
             <button
               onClick={onReset}
               className="flex-1 px-8 py-4 bg-white/10 hover:bg-white/20 text-text-main rounded-full font-bold text-sm transition-colors border border-glass-border"
             >
-              New Log
+              Clear & New
             </button>
           </div>
         </div>

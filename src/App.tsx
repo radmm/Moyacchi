@@ -8,10 +8,13 @@ import TrendTracker from './components/TrendTracker';
 import Mascot from './components/Mascot';
 import ShareCard from './components/ShareCard';
 import VisualEnvironment from './components/VisualEnvironment';
+import ImageAnalyser from './components/ImageAnalyser';
+import DailyStackView from './components/DailyStackView';
 import BloomHub from './components/BloomHub';
+import Journal from './components/Journal';
 import { DailyLog, AnalysisResult, HistoryItem } from './types';
 import { analyzeHabits } from './lib/geminiService';
-import { Leaf, Info, LogIn, LogOut, Sparkles } from 'lucide-react';
+import { Leaf, Info, LogIn, LogOut, Sparkles, BookOpen } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 const STORAGE_KEY = 'moyacchi_history';
@@ -19,7 +22,7 @@ const STORAGE_KEY = 'moyacchi_history';
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
-  const [activeLog, setActiveLog] = useState<DailyLog | null>(null);
+  const [currentStack, setCurrentStack] = useState<DailyLog[]>([]);
   const [currentResult, setCurrentResult] = useState<AnalysisResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showShare, setShowShare] = useState(false);
@@ -41,7 +44,12 @@ export default function App() {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
           try {
-            setHistory(JSON.parse(saved));
+            const raw = JSON.parse(saved);
+            const normalized = raw.map((item: any) => ({
+              ...item,
+              logs: item.logs || (item.log ? [item.log] : [])
+            }));
+            setHistory(normalized);
           } catch (e) {
             console.error("Failed to load history", e);
           }
@@ -53,12 +61,43 @@ export default function App() {
   // Sync History
   useEffect(() => {
     if (!user) return;
-    const q = query(getHistoryCollection(user.uid), orderBy('log.timestamp', 'desc'), fsLimit(30));
+    const q = query(getHistoryCollection(user.uid), orderBy('date', 'desc'), fsLimit(50));
     return onSnapshot(q, (snapshot) => {
-      const items = snapshot.docs.map(doc => doc.data() as HistoryItem);
+      const items = snapshot.docs.map(doc => {
+        const data = doc.data() as any;
+        return {
+          ...data,
+          logs: data.logs || (data.log ? [data.log] : [])
+        } as HistoryItem;
+      });
       setHistory(items);
     });
   }, [user]);
+
+  // Sunday / Weekly Summary Logic
+  useEffect(() => {
+    const checkSummary = async () => {
+      const now = new Date();
+      const lastSummaryDate = localStorage.getItem('last_weekly_summary');
+      const todayStr = now.toISOString().split('T')[0];
+
+      // If Sunday (0) and we haven't summarized this week yet
+      if (now.getDay() === 0 && lastSummaryDate !== todayStr && history.length > 0) {
+        const saturday = new Date();
+        saturday.setDate(now.getDate() - 1);
+        const satStr = saturday.toISOString().split('T')[0];
+        
+        // Find Sat entries (orphaned)
+        const orphaned = history.filter(h => h.date === satStr);
+        if (orphaned.length > 0) {
+          // Perform weekly roll-up logic (simplified for now)
+          localStorage.setItem('last_weekly_summary', todayStr);
+          console.log("Generating Weekly Saturday Summary...");
+        }
+      }
+    };
+    checkSummary();
+  }, [history]);
 
   const saveHistoryLocally = (newHistory: HistoryItem[]) => {
     if (!user) {
@@ -67,29 +106,38 @@ export default function App() {
     }
   };
 
-  const handleSubmit = async (log: DailyLog) => {
+  const handleAddToStack = (log: DailyLog) => {
+    setCurrentStack(prev => [...prev, log]);
+    setMascotMood('happy');
+  };
+
+  const handleAnalyseStack = async () => {
+    if (currentStack.length === 0) return;
+    
     setIsLoading(true);
     setMascotMood('thinking');
-    setActiveLog(log);
     
     try {
       const context = history.slice(0, 3);
-      const result = await analyzeHabits(log, context);
+      const result = await analyzeHabits(currentStack, context);
       
       setCurrentResult(result);
       setMascotMood(result.score > 50 ? 'cheering' : 'happy');
 
       const dateStr = new Date().toISOString().split('T')[0];
-      const newItem: HistoryItem = { log, analysis: result, date: dateStr };
+      const newItem: HistoryItem = { logs: currentStack, analysis: result, date: dateStr };
 
       if (user) {
         await setDoc(getHistoryRef(user.uid, dateStr), newItem);
       } else {
         const filteredHistory = history.filter(h => h.date !== dateStr);
-        saveHistoryLocally([newItem, ...filteredHistory].slice(0, 30));
+        saveHistoryLocally([newItem, ...filteredHistory].slice(0, 50));
       }
+      
+      // Clear stack after analysis is saved
+      setCurrentStack([]);
     } catch (error) {
-      alert("Oops! Moyacchi link to the stars is a bit shaky. Please try again!");
+      alert("Oops! Moyacchi lost signal. Try again!");
       setMascotMood('sad');
     } finally {
       setIsLoading(false);
@@ -194,9 +242,26 @@ export default function App() {
 
           <AnimatePresence mode="wait">
             {!currentResult ? (
-              <div key="form" className="flex flex-col gap-8 h-full">
-                <HabitForm onSubmit={handleSubmit} isLoading={isLoading} initialValues={activeLog} />
-                <div className="mt-auto flex items-center justify-center gap-2 text-text-dim text-xs py-4">
+              <div key="form" className="flex flex-col gap-12 h-full">
+                <HabitForm onSubmit={handleAddToStack} isLoading={isLoading} />
+                <DailyStackView 
+                  logs={currentStack} 
+                  onRemove={(idx) => setCurrentStack(prev => prev.filter((_, i) => i !== idx))}
+                  onAnalyse={handleAnalyseStack}
+                  isAnalysing={isLoading}
+                />
+                
+                <div className="pt-20 border-t border-white/5">
+                  <Journal 
+                    history={history} 
+                    onShare={(item) => {
+                      setCurrentResult(item.analysis);
+                      setShowShare(true);
+                    }} 
+                  />
+                </div>
+
+                <div className="mt-auto flex items-center justify-center gap-2 text-text-dim text-xs py-10 opacity-30">
                   <Info className="w-4 h-4 text-primary" />
                   Wholesome AI privacy prioritized.
                 </div>
@@ -206,7 +271,7 @@ export default function App() {
                 <AnalysisView 
                   result={currentResult} 
                   onShare={() => setShowShare(true)}
-                  onReset={() => { setCurrentResult(null); setActiveLog(null); }}
+                  onReset={() => { setCurrentResult(null); setCurrentStack([]); }}
                   onEdit={() => setCurrentResult(null)}
                 />
               </div>

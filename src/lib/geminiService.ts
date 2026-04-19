@@ -75,21 +75,27 @@ const HABIT_IDENTIFICATION_SCHEMA = {
   required: ["transport", "food", "energy"],
 };
 
-export async function analyzeHabits(log: DailyLog, context?: HistoryItem[]): Promise<AnalysisResult> {
+export async function analyzeHabits(logs: DailyLog[], context?: HistoryItem[]): Promise<AnalysisResult> {
   const historyText = context?.length 
-    ? `Recent History (last 3 days):\n${context.map(h => `- Score: ${h.analysis.score}, Focus: ${h.log.transport}`).join('\n')}`
+    ? `Recent History (last 3 days):\n${context.map(h => `- Day ${h.date}: Score ${h.analysis.score}`).join('\n')}`
     : "No recent history.";
 
-  const prompt = `
-    Analyze these daily habits for their environmental impact.
-    ${historyText}
-    
-    Current Daily Habits:
+  const stackText = logs.map((log, i) => `
+    Entry #${i+1}:
     - Transport: ${log.transport}
     - Food: ${log.food}
     - Energy/Purchases: ${log.energy}
+  `).join('\n');
+
+  const prompt = `
+    Analyze this "Daily Stack" of habits for their cumulative environmental impact.
+    ${historyText}
     
-    Provide the analysis in the requested JSON format.
+    Current Daily Stack:
+    ${stackText}
+    
+    Provide a comprehensive analysis of the ENTIRE day based on all entries above.
+    The response must be in refined JSON format.
   `;
 
   try {

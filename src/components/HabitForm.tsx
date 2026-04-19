@@ -54,8 +54,15 @@ export default function HabitForm({ onSubmit, isLoading, initialValues }: HabitF
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!log.transport || !log.food || !log.energy) return;
+    if (!log.transport && !log.food && !log.energy) return;
     onSubmit({ ...log, timestamp: Date.now() });
+    // Reset after adding to stack
+    setLog({
+      transport: '',
+      food: '',
+      energy: '',
+      timestamp: Date.now(),
+    });
   };
 
   return (
@@ -68,10 +75,10 @@ export default function HabitForm({ onSubmit, isLoading, initialValues }: HabitF
       <div className="flex items-center justify-between border-b border-white/5 pb-6">
         <div className="space-y-1">
           <h3 className="text-xl font-bold text-white flex items-center gap-2">
-            Daily Logger
+            Daily Stack
             <Sparkles className="w-4 h-4 text-primary animate-pulse" />
           </h3>
-          <p className="text-text-dim text-[10px] uppercase tracking-widest font-bold">Manual or Vision Mode</p>
+          <p className="text-text-dim text-[10px] uppercase tracking-widest font-bold">Add habits throughout the day</p>
         </div>
         
         <div className="relative">
@@ -145,23 +152,14 @@ export default function HabitForm({ onSubmit, isLoading, initialValues }: HabitF
         </div>
       </div>
 
-      <div className="flex justify-end pt-4">
+    <div className="flex justify-end pt-4">
         <button
           type="submit"
-          disabled={isLoading || isIdentifying}
+          disabled={isIdentifying}
           className="btn-primary w-full md:w-auto md:min-w-[280px] py-5 flex items-center justify-center gap-3 text-sm"
         >
-          {isLoading ? (
-            <>
-              <Loader2 className="w-5 h-5 animate-spin" />
-              Gemini Brain Analyzing...
-            </>
-          ) : (
-            <>
-              <Send className="w-5 h-5" />
-              Record Habits
-            </>
-          )}
+          <Send className="w-5 h-5" />
+          Add to Stack
         </button>
       </div>
     </motion.form>

@@ -18,9 +18,18 @@ export interface AnalysisResult {
 }
 
 export interface HistoryItem {
-  log: DailyLog;
+  logs: DailyLog[];
   analysis: AnalysisResult;
   date: string; // YYYY-MM-DD
+  isSummary?: boolean; // True for Sunday weekly summaries
+}
+
+export interface JournalEntry {
+  id: string;
+  date: string;
+  logs: DailyLog[];
+  analysis: AnalysisResult;
+  mood?: string;
 }
 
 export interface ChatMessage {
