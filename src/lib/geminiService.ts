@@ -175,7 +175,7 @@ export async function chatWithMoyacchi(messages: ChatMessage[]): Promise<string>
       model: "gemini-3-flash-preview",
       contents: prompt,
       config: {
-        systemInstruction: "You are Moyacchi, a cute and wholesome AI companion. Your goal is to be a non-judgmental strategist for a greener life.",
+        systemInstruction: "You are Moyacchi, a cute and wholesome AI companion. Your goal is to be a non-judgmental strategist for a greener life. Use markdown for lists, bolding, and headings to keep your thoughts organized and beautiful.",
       },
     });
 

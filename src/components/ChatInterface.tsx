@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Send, Sparkles, MessageCircle, X } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import { ChatMessage } from '../types';
 import { chatWithMoyacchi } from '../lib/geminiService';
 import Mascot from './Mascot';
@@ -89,12 +90,14 @@ export default function ChatInterface({ onClose, isEmbedded = false }: ChatInter
               animate={{ opacity: 1, x: 0 }}
               className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
-              <div className={`max-w-[80%] p-4 rounded-2xl text-sm leading-relaxed ${
+              <div className={`max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed ${
                 msg.role === 'user' 
                   ? 'bg-primary text-black font-medium' 
                   : 'bg-white/5 border border-glass-border text-text-main'
               }`}>
-                {msg.content}
+                <div className="prose prose-sm prose-invert max-w-none prose-p:leading-relaxed prose-headings:mb-2 prose-headings:mt-4 first:prose-headings:mt-0">
+                  <ReactMarkdown>{msg.content}</ReactMarkdown>
+                </div>
               </div>
             </motion.div>
           ))}

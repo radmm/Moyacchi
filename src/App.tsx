@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { onSnapshot, query, orderBy, limit as fsLimit, setDoc } from 'firebase/firestore';
-import { auth, loginWithGoogle, logout, getHistoryCollection, getHistoryRef, getUserRef } from './lib/firebase';
+import { auth, loginWithGoogle, logout, getHistoryCollection, getHistoryRef, getUserRef, deleteHistoryDoc } from './lib/firebase';
 import HabitForm from './components/HabitForm';
 import AnalysisView from './components/AnalysisView';
 import TrendTracker from './components/TrendTracker';
@@ -12,6 +12,7 @@ import ImageAnalyser from './components/ImageAnalyser';
 import DailyStackView from './components/DailyStackView';
 import BloomHub from './components/BloomHub';
 import Journal from './components/Journal';
+import ReactMarkdown from 'react-markdown';
 import { DailyLog, AnalysisResult, HistoryItem } from './types';
 import { analyzeHabits } from './lib/geminiService';
 import { Leaf, Info, LogIn, LogOut, Sparkles, BookOpen } from 'lucide-react';
@@ -144,6 +145,25 @@ export default function App() {
     }
   };
 
+  const handleDeleteHistory = async (date: string) => {
+    if (!confirm("Are you sure you want to remove this day from your journal? 🌿")) return;
+    
+    try {
+      if (user) {
+        await deleteHistoryDoc(user.uid, date);
+      } else {
+        const newHistory = history.filter(h => h.date !== date);
+        saveHistoryLocally(newHistory);
+      }
+      if (currentResult && history[0]?.date === date) {
+        setCurrentResult(null);
+      }
+    } catch (error) {
+      console.error("Failed to delete history", error);
+      alert("Moyacchi couldn't remove that entry right now.");
+    }
+  };
+
   const calculateStreak = (historyItems: HistoryItem[]) => {
     if (historyItems.length === 0) return 0;
     let streak = 0;
@@ -200,8 +220,10 @@ export default function App() {
             <Mascot mood={mascotMood} stage={currentStage} size="xl" />
 
             {currentResult ? (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-text-main text-sm leading-relaxed italic">
-                {currentResult.encouragement}
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-text-main text-sm leading-relaxed italic text-center w-full">
+                <div className="prose prose-sm prose-invert max-w-none prose-p:leading-relaxed">
+                  <ReactMarkdown>{currentResult.encouragement}</ReactMarkdown>
+                </div>
               </motion.div>
             ) : (
               <p className="text-text-dim text-sm leading-relaxed">
@@ -247,6 +269,9 @@ export default function App() {
                 <DailyStackView 
                   logs={currentStack} 
                   onRemove={(idx) => setCurrentStack(prev => prev.filter((_, i) => i !== idx))}
+                  onClearAll={() => {
+                    if (confirm("Clear your current stack? 🌿")) setCurrentStack([]);
+                  }}
                   onAnalyse={handleAnalyseStack}
                   isAnalysing={isLoading}
                 />
@@ -254,6 +279,7 @@ export default function App() {
                 <div className="pt-20 border-t border-white/5">
                   <Journal 
                     history={history} 
+                    onDelete={handleDeleteHistory}
                     onShare={(item) => {
                       setCurrentResult(item.analysis);
                       setShowShare(true);

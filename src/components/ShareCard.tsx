@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { X, Download, Leaf, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { domToPng } from 'modern-screenshot';
+import ReactMarkdown from 'react-markdown';
 import Mascot from './Mascot';
 
 interface ShareCardProps {
@@ -75,7 +76,9 @@ export default function ShareCard({ result, onClose }: ShareCardProps) {
               </div>
 
               <div className="bg-white/5 p-6 rounded-3xl border border-glass-border w-full text-sm italic text-text-main leading-relaxed">
-                "{result.encouragement}"
+                <div className="prose prose-sm prose-invert max-w-none">
+                  <ReactMarkdown>{result.encouragement}</ReactMarkdown>
+                </div>
               </div>
 
               <div className="bg-primary/10 border border-primary/20 rounded-xl px-4 py-2 w-full">

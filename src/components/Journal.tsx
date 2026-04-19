@@ -1,14 +1,16 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Book, Calendar, Quote, Leaf, ChevronRight, Share2 } from 'lucide-react';
+import { Book, Calendar, Quote, Leaf, ChevronRight, Share2, Trash2 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import { HistoryItem } from '../types';
 
 interface JournalProps {
   history: HistoryItem[];
   onShare: (item: HistoryItem) => void;
+  onDelete: (date: string) => void;
 }
 
-export default function Journal({ history, onShare }: JournalProps) {
+export default function Journal({ history, onShare, onDelete }: JournalProps) {
   if (history.length === 0) {
     return (
       <div className="py-20 text-center space-y-4">
@@ -76,9 +78,11 @@ export default function Journal({ history, onShare }: JournalProps) {
                       </div>
                     </div>
 
-                    <p className="text-sm text-text-main leading-relaxed italic border-l-2 border-primary/30 pl-4 opacity-90">
-                      "{item.analysis.encouragement}"
-                    </p>
+                    <div className="text-sm text-text-main leading-relaxed italic border-l-2 border-primary/30 pl-4 opacity-90">
+                      <div className="prose prose-sm prose-invert max-w-none prose-p:leading-relaxed">
+                        <ReactMarkdown>{item.analysis.encouragement}</ReactMarkdown>
+                      </div>
+                    </div>
 
                     <div className="space-y-4">
                       <div className="flex items-center gap-3">
@@ -93,12 +97,20 @@ export default function Journal({ history, onShare }: JournalProps) {
                         <Leaf className="w-3 h-3 text-secondary" />
                         {(item.logs?.length ?? 1)} Actions Recorded
                       </div>
-                      <button 
-                        onClick={() => onShare(item)}
-                        className="p-2 hover:bg-white/10 rounded-full text-text-dim hover:text-white transition-colors"
-                      >
-                        <Share2 className="w-4 h-4" />
-                      </button>
+                      <div className="flex items-center gap-1">
+                        <button 
+                          onClick={() => onDelete(item.date)}
+                          className="p-2 hover:bg-red-500/10 rounded-full text-text-dim hover:text-red-400 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                        <button 
+                          onClick={() => onShare(item)}
+                          className="p-2 hover:bg-white/10 rounded-full text-text-dim hover:text-white transition-colors"
+                        >
+                          <Share2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>

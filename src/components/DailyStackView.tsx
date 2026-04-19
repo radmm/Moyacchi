@@ -6,11 +6,12 @@ import { DailyLog } from '../types';
 interface DailyStackViewProps {
   logs: DailyLog[];
   onRemove: (index: number) => void;
+  onClearAll: () => void;
   onAnalyse: () => void;
   isAnalysing: boolean;
 }
 
-export default function DailyStackView({ logs, onRemove, onAnalyse, isAnalysing }: DailyStackViewProps) {
+export default function DailyStackView({ logs, onRemove, onClearAll, onAnalyse, isAnalysing }: DailyStackViewProps) {
   if (logs.length === 0) return null;
 
   return (
@@ -22,8 +23,16 @@ export default function DailyStackView({ logs, onRemove, onAnalyse, isAnalysing 
           </div>
           <h3 className="text-xl font-bold text-white italic tracking-tight">Today's Stack</h3>
         </div>
-        <div className="text-[10px] text-text-dim uppercase tracking-[0.2em] font-black">
-          {logs.length} {logs.length === 1 ? 'Action' : 'Actions'} Added
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={onClearAll}
+            className="text-[10px] text-red-400/60 hover:text-red-400 uppercase tracking-[0.2em] font-black transition-colors"
+          >
+            Clear Stack
+          </button>
+          <div className="text-[10px] text-text-dim uppercase tracking-[0.2em] font-black">
+            {logs.length} {logs.length === 1 ? 'Action' : 'Actions'} Added
+          </div>
         </div>
       </div>
 
