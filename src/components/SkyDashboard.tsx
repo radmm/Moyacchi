@@ -126,9 +126,39 @@ export default function SkyDashboard() {
                 </button>
               </form>
 
+              {!isSearching && searchResults.length === 0 && (
+                <div className="space-y-4">
+                  <div className="relative flex items-center">
+                    <div className="flex-1 h-[1px] bg-white/10" />
+                    <span className="px-4 text-[10px] text-text-dim uppercase tracking-[0.3em] font-black">Trending Skies</span>
+                    <div className="flex-1 h-[1px] bg-white/10" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {['Delhi', 'Mumbai', 'London', 'Tokyo'].map(city => (
+                      <button 
+                        key={city}
+                        onClick={async () => { 
+                          setSearchQuery(city);
+                          setIsSearching(true);
+                          setSearchResults([]);
+                          try {
+                            const locations = await searchLocation(city);
+                            if (locations.length > 0) setSearchResults(locations);
+                          } catch (err) { console.error(err); }
+                          finally { setIsSearching(false); }
+                        }}
+                        className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-full text-xs text-text-dim border border-white/5 transition-all"
+                      >
+                        {city}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {searchResults.length > 0 && (
-                <div className="space-y-2 mt-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
-                  <p className="text-[10px] text-text-dim uppercase tracking-[0.2em] mb-2 font-bold">Pick the right spot:</p>
+                <div className="space-y-2 mt-2 max-h-[220px] overflow-y-auto pr-2 custom-scrollbar">
+                  <p className="text-[10px] text-text-dim uppercase tracking-[0.2em] mb-2 font-bold">Pick exact location:</p>
                   {searchResults.map((loc, i) => (
                     <button
                       key={i}
@@ -136,13 +166,16 @@ export default function SkyDashboard() {
                       className="w-full p-4 glass-card bg-white/5 hover:bg-white/10 text-left text-sm text-text-main flex items-center gap-3 transition-colors border-white/5"
                     >
                       <MapPin className="w-4 h-4 text-primary shrink-0" />
-                      <span className="truncate">{loc.name}</span>
+                      <div className="truncate">
+                        <p className="font-bold">{loc.name.split(',')[0]}</p>
+                        <p className="text-[10px] text-text-dim opacity-70 truncate">{loc.name.split(',').slice(1).join(',').trim()}</p>
+                      </div>
                     </button>
                   ))}
                 </div>
               )}
 
-              <p className="text-[10px] text-text-dim uppercase tracking-widest">Search worldwide. Start with your city.</p>
+              <p className="text-[10px] text-text-dim uppercase tracking-widest text-center mt-4 opacity-50">Accurate real-time mapping. Start with your city.</p>
             </div>
           </motion.div>
         ) : (
@@ -175,19 +208,27 @@ export default function SkyDashboard() {
               <div className="glass-card p-6 border-white/5 bg-white/[0.02]">
                 <div className="flex items-center gap-2 mb-6 text-primary">
                   <Wind className="w-5 h-5" />
-                  <h4 className="text-xs font-black uppercase tracking-widest">Main Pollutants</h4>
+                  <h4 className="text-xs font-black uppercase tracking-widest">Environmental Chemistry</h4>
                 </div>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-text-dim">PM2.5</span>
-                    <span className="text-sm font-bold text-white">{data.pollutants.pm25} μg/m³</span>
+                    <span className="text-xs text-text-dim">PM2.5 / PM10</span>
+                    <span className="text-sm font-bold text-white tracking-tighter">{data.pollutants.pm25} / {data.pollutants.pm10}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-text-dim">PM10</span>
-                    <span className="text-sm font-bold text-white">{data.pollutants.pm10} μg/m³</span>
+                    <span className="text-xs text-text-dim">NO₂ (Nitrogen)</span>
+                    <span className="text-sm font-bold text-white">{data.pollutants.no2} μg/m³</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-text-dim">Ozone (O3)</span>
+                    <span className="text-xs text-text-dim">SO₂ (Sulphur)</span>
+                    <span className="text-sm font-bold text-white">{data.pollutants.so2} μg/m³</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-text-dim">CO (Carbon)</span>
+                    <span className="text-sm font-bold text-white">{data.pollutants.co} μg/m³</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-text-dim">O₃ (Ozone)</span>
                     <span className="text-sm font-bold text-white">{data.pollutants.o3} μg/m³</span>
                   </div>
                 </div>

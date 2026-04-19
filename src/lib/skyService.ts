@@ -40,7 +40,7 @@ export async function fetchSkyData(lat?: number, lon?: number, locationName?: st
   const longitude = lon ?? 0;
 
   try {
-    const aqiUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${latitude}&longitude=${longitude}&current=us_aqi,pm10,pm2_5,ozone`;
+    const aqiUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${latitude}&longitude=${longitude}&current=us_aqi,pm10,pm2_5,nitrogen_dioxide,sulphur_dioxide,carbon_monoxide,ozone`;
     const pollenUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${latitude}&longitude=${longitude}&hourly=alnus_pollen,betula_pollen,grass_pollen,mugwort_pollen,olive_pollen,ragweed_pollen`;
 
     const aqiResponse = await fetchWithTimeout(aqiUrl);
@@ -72,7 +72,7 @@ export async function fetchSkyData(lat?: number, lon?: number, locationName?: st
     const aqi = current.us_aqi ?? 0;
     let aqiLabel = "Good";
     if (aqi > 50) aqiLabel = "Moderate";
-    if (aqi > 100) aqiLabel = "Unhealthy for Sensitive Groups";
+    if (aqi > 100) aqiLabel = "Unhealthy (Sens.)";
     if (aqi > 150) aqiLabel = "Unhealthy";
     if (aqi > 200) aqiLabel = "Very Unhealthy";
     if (aqi > 300) aqiLabel = "Hazardous";
@@ -83,6 +83,9 @@ export async function fetchSkyData(lat?: number, lon?: number, locationName?: st
       pollutants: {
         pm25: current.pm2_5 ?? 0,
         pm10: current.pm10 ?? 0,
+        no2: current.nitrogen_dioxide ?? 0,
+        so2: current.sulphur_dioxide ?? 0,
+        co: current.carbon_monoxide ?? 0,
         o3: current.ozone ?? 0,
       },
       pollen,
@@ -95,7 +98,7 @@ export async function fetchSkyData(lat?: number, lon?: number, locationName?: st
     return {
       aqi: 25,
       aqiLabel: "Good",
-      pollutants: { pm25: 12, pm10: 20, o3: 0 },
+      pollutants: { pm25: 12, pm10: 20, no2: 5, so2: 2, co: 300, o3: 40 },
       pollen: { grass: 0, tree: 0, weed: 0 },
       location: "Offline Mode",
       timestamp: Date.now()
