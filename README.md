@@ -2,6 +2,7 @@
 <img src="https://cdn.discordapp.com/attachments/1463227227507527776/1495552001646530663/Untitled40_20260420033957.jpg?ex=69e6a8d7&is=69e55757&hm=5c1326f9f92901146bfacc8d2fb91fe92deaaff0a069303a0041fd8c243b3d8d&" />
 
 ### Moyacchi ; Your AI Eco Companion
+Demo: https://youtu.be/y_8WKch14kQ
 **Track your habits. Understand your impact. Grow together.**
 
 </div>
