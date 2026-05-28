@@ -1,5 +1,5 @@
 <div align="center">
-<img src="https://cdn.discordapp.com/attachments/1463227227507527776/1495552001646530663/Untitled40_20260420033957.jpg?ex=69e6a8d7&is=69e55757&hm=5c1326f9f92901146bfacc8d2fb91fe92deaaff0a069303a0041fd8c243b3d8d&" />
+<img src="https://cdn.discordapp.com/attachments/1463227227507527776/1509407573361823815/Untitled40_20260420033957.jpg?ex=6a1910d8&is=6a17bf58&hm=c1ad825b2defe4d23ba3aa01422a427559d841d13854af86b332ee43f1330eea&" />
 
 ### Moyacchi ; Your AI Eco Companion
 Demo: https://youtu.be/y_8WKch14kQ
